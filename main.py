@@ -2,7 +2,7 @@ from flask import Flask, escape, request,render_template,session,redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 
 
@@ -24,7 +24,7 @@ def login():
 
 @app.route('/register', methods = ['GET','POST'])
 def register_employee():
-    # check if user in session part to be activates once we complete dashboard login part and thus set the session variable
+    # check if the user is in session part to be activates once we complete dashboard login part and thus set the session variable
     # if user in session and session['user'] ==:
         if(request.method=='POST'):
            name = request.form.get('name')
