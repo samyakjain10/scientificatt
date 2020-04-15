@@ -1,9 +1,10 @@
-from flask import Flask, escape, request,render_template
+from flask import Flask, escape, request,render_template,session,redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
+
 
 class Employees(db.Model):
 
@@ -16,76 +17,109 @@ class Employees(db.Model):
     department = db.Column(db.String(30), nullable=False)
     designation = db.Column(db.String(30), nullable=False)
 
+
 @app.route('/')
-def dashboard5():
+def login():
     return render_template('login.html')
-
-@app.route('/employee_module')
-def dashboard4():
-    return render_template('employee_module.html')
-
-@app.route('/founder')
-def dashboard3():
-    return render_template('founder_module.html')
 
 @app.route('/register', methods = ['GET','POST'])
 def register_employee():
+    # check if user in session part to be activates once we complete dashboard login part and thus set the session variable
+    # if user in session and session['user'] ==:
+        if(request.method=='POST'):
+           name = request.form.get('name')
+           email = request.form.get('email')
+           phone = request.form.get('phone')
+           password = request.form.get('password')
+           branch = request.form.get('branch')
+           department = request.form.get('department')
+           designation = request.form.get('designation')
+           entry = Employees(name=name,
+                            email=email,
+                            phone=phone,
+                            password=password,
+                            branch=branch,
+                            department=department,
+                            designation=designation)
+           db.session.add(entry)
+           db.session.commit()
 
-    if(request.method=='POST'):
-       name = request.form.get('name')
-       email = request.form.get('email')
-       phone = request.form.get('phone')
-       password = request.form.get('password')
-       branch = request.form.get('branch')
-       department = request.form.get('department')
-       designation = request.form.get('designation')
-       entry = Employees(name=name,
+        total_branches = [{'branch':'delhi'},{'branch':'mumbai'}]
+        total_departments = [{'department': 'marketing'}, {'department': 'hr'}]
+        total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
+
+        return render_template('register.html',
+                               total_branches=total_branches,
+                               total_departments=total_departments,
+                               total_designations=total_designations)
+
+
+@app.route('/register_login',methods=['GET','POST'])
+def register_login():
+    if request.method=='POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone_no')
+        password = request.form.get('pass')
+        entry = Employees(name=name,
                         email=email,
                         phone=phone,
                         password=password,
-                        branch=branch,
-                        department=department,
-                        designation=designation)
-       db.session.add(entry)
-       db.session.commit()
+                        branch="NOT ASSIGNED",
+                        department="NOT ASSIGNED",
+                        designation="Employee")
+        db.session.add(entry)
+        db.session.commit()
+        return render_template('login.html')
+    else:
+        return render_template('register_login.html')
 
-    total_branches = [{'branch':'delhi'},{'branch':'mumbai'}]
-    total_departments = [{'department': 'marketing'}, {'department': 'hr'}]
-    total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
 
-    return render_template('register.html',
-                           total_branches=total_branches,
-                           total_departments=total_departments,
-                           total_designations=total_designations)
-
-@app.route('/state')
-def dashboard1():
-    return render_template('state_head_module.html')
-
-@app.route('/layout')
-def dashboard6():
-    return render_template('layout.html')
-
-@app.route('/profile')
-def dashboard7():
-    return render_template('profile.html')
-
-@app.route('/department')
-def dashboard8():
-    return render_template('department.html')
-
-@app.route('/branch')
-def branch():
-    return render_template('branches.html')
-
-@app.route('/employee')
-def employee():
+@app.route('/employee_f')
+def employee_founder_module():
     employees = Employees.query.filter_by().all()
+
     return render_template('employee.html',employees=employees)
 
-@app.route('/register_login')
-def dashboard11():
-    return render_template('register_login.html')
+@app.route('/employee_f_edit/<string:sno>',methods=['GET','POST'])
+def employee_f_edit(sno):
+    # check if user in session part to be activates once we complete dashboard login part and thus set the session variable
+    # if user in session and session['user']== :
+        if request.method=='POST':
+            name = request.form.get('name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            password = request.form.get('password')
+            branch = request.form.get('branch')
+            department = request.form.get('department')
+            designation = request.form.get('designation')
+            employees = Employees.query.filter_by(sno=sno).all()
+            employees.name=name
+            employees.email=email
+            employees.phone=phone
+            employees.password=password
+            employees.branch=branch
+            employees.department=department
+            employees.designation=designation
+            db.session.commit()
+            return redirect('/employee_f_edit/'+sno)
+        employees = Employees.query.filter_by(sno=sno).all()
+        total_branches = [{'branch': 'delhi'}, {'branch': 'mumbai'}]
+        total_departments = [{'department': 'marketing'}, {'department': 'hr'}]
+        total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
+        return render_template('employee_edit.html',employee=employees,
+                               total_branches=total_branches,
+                               total_departments=total_departments,
+                               total_designations=total_designations)
 
+
+@app.route('/employee_f_delete/<string:sno>',methods=['GET','POST'])
+def employee_delete(sno):
+    # check if user in session part to be activates once we complete dashboard login part and thus set the session variable
+    # if user in session and session['user']== :
+        employee=Employees.query.filter_by(sno=sno).first()
+        db.session.delete(employee)
+        db.session.commit()
+        return redirect('/employee_f')
 
 app.run(debug=True)

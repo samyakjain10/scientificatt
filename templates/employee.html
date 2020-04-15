@@ -51,10 +51,10 @@
                                     <td>{{employee.department}}</td>
                                     <td>{{employee.branch}}</td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
+                                        <a href="/employee_f_edit/{{employee.sno}}"><button type="button" class="btn btn-outline-primary">Edit</button></a>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
+                                        <a href="/employee_f_delete/{{employee.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
                                     </td>
                                 </tr>
                                 {% endfor %}
