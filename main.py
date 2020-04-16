@@ -1,10 +1,16 @@
-from flask import Flask, escape, request,render_template,session,redirect
+from flask import Flask, escape, request,render_template,session,redirect,Blueprint
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 
+dashboard = Blueprint('login',__name__, url_prefix='/dashboard')                                  #  admin   branch-head   employee
+# employee = Blueprint('employee',__name__, url_prefix='/employee')                                 #  admin   branch-head
+# department = Blueprint('department',__name__, url_prefix='/department')                           #  admin   branch-head
+# branch = Blueprint('branch',__name__, url_prefix='/branch')                                       #  admin   branch-head
+# assign_project = Blueprint('assign_project',__name__, url_prefix='/assign-project')               #  admin   branch-head
+# assign_department = Blueprint('assign_department',__name__, url_prefix='/assign-department')      #  admin   branch-head
 
 class Employees(db.Model):
 
@@ -17,10 +23,21 @@ class Employees(db.Model):
     department = db.Column(db.String(30), nullable=False)
     designation = db.Column(db.String(30), nullable=False)
 
-
 @app.route('/')
 def login():
     return render_template('login.html')
+
+@dashboard.route('/admin/')
+def admin_dashboard():
+    return render_template('founder_module.html')
+
+@dashboard.route('/branch-head/')
+def branch_head_dashboard():
+    return render_template('state_head_module.html')
+
+@dashboard.route('/employee/')
+def employee_dashboard():
+    return render_template('employee_module.html')
 
 @app.route('/register', methods = ['GET','POST'])
 def register_employee():
@@ -121,5 +138,5 @@ def employee_delete(sno):
         db.session.delete(employee)
         db.session.commit()
         return redirect('/employee_f')
-
+app.register_blueprint(dashboard)
 app.run(debug=True)
