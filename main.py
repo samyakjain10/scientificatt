@@ -200,3 +200,9 @@ def forgot_password():
 
 app.register_blueprint(dashboard)
 app.run(debug=True)
+
+
+#improve profile frontend
+#inprove logo on left top corner frontend
+#add footer with privacy policy
+#change card frontend
