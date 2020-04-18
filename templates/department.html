@@ -31,55 +31,24 @@
                             <thead>
                                 <tr>
                                     <th>Department Name</th>
-                                    <th>Department Head</th>
-                                    <th>Total Employees</th>
-                                    <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr>
                                     <th>Department Name</th>
-                                    <th>Department Head</th>
-                                    <th>Total Employees</th>
-                                    <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </tfoot>
                             <tbody>
+                                {% for department in departments %}
                                 <tr>
-                                    <td>Software</td>
-                                    <td>Employee 1</td>
-                                    <td>20</td>
+                                    <td>{{department.name}}</td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
+                                        <a href="/department/delete/{{department.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Marketing</td>
-                                    <td>Employee 2</td>
-                                    <td>10</td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Sales</td>
-                                    <td>Employee 3</td>
-                                    <td>15</td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>

@@ -1,22 +1,21 @@
-from flask import Flask, request, render_template, redirect, Blueprint,flash
+from flask import Flask, request, render_template, redirect, Blueprint, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 dashboard = Blueprint('login', __name__, url_prefix='/dashboard')  # admin   branch-head   employee
-
+branch = Blueprint('branch',__name__, url_prefix='/branch')                                     #  admin
+department = Blueprint('department',__name__, url_prefix='/department')  #admin
 
 # employee = Blueprint('employee',__name__, url_prefix='/employee')                               #  admin   branch-head
-# department = Blueprint('department',__name__, url_prefix='/department')                         #  admin
-# branch = Blueprint('branch',__name__, url_prefix='/branch')                                     #  admin   branch-head
 # assign_project = Blueprint('assign_project',__name__, url_prefix='/assign-project')             #  admin   branch-head
 # assign_department = Blueprint('assign_department',__name__, url_prefix='/assign-department')    #  admin   branch-head
 
@@ -30,13 +29,18 @@ class Employees(UserMixin, db.Model):
     department = db.Column(db.String(30), nullable=False)
     designation = db.Column(db.String(30), nullable=False)
 
+class Branches(db.Model):
+    sno = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    head = db.Column(db.String(30), nullable=False)
+    address = db.Column(db.String(60), nullable=False)
+
+class Departments(db.Model):
+    sno = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
 
 # class Projects(db.Model):
 # project name , project assigned to, branch, department,date,status,description
-# class Branches(db.Model):
-# branch name , branch head, address
-# class Departments(db.Model):
-# department name, remove total employees from department.html
 
 @login_manager.user_loader
 def load_user(employee_id):
@@ -57,11 +61,11 @@ def login():
                 login_user(employee, remember=True)
                 flash('Logged in successfully.')
                 if employee.designation == 'Founder':
-                    redirect('/dashboard/admin/')
+                    return redirect('/dashboard/admin/')
                 elif employee.designation == 'Branch Head':
-                    redirect('/dashboard/branch_head/')
+                    return redirect('/dashboard/branch_head/')
                 else:
-                    redirect('/dashboard/employee/')
+                    return redirect('/dashboard/employee/')
     return render_template('login.html')
 
 
@@ -160,7 +164,7 @@ def register_login():
 def new():
     # display table of employees with department or branch as not assigned also need to make frontend tempplate
     # name email branch department (designation) assign delete
-    pass
+    return render_template('new.html')
 
 
 # change and make as per blueprint for founder and branchhead
@@ -169,31 +173,27 @@ def employee():
     employees = Employees.query.filter_by().all()
     return render_template('employee.html', employees=employees)
 
-
-# DEBUG THE FOLLOWING
-@app.route('/employee_edit/<string:sno>', methods=['GET', 'POST'])
-def employee_edit(sno):
+@app.route('/employee_edit/<string:id>', methods=['GET', 'POST'])
+def employee_edit(id):
     # check if user in session part to be activates once we complete dashboard login part and thus set the session variable
     # if user in session and session['user']== :
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        password = request.form.get('password')
         branch = request.form.get('branch')
         department = request.form.get('department')
         designation = request.form.get('designation')
-        employees = Employees.query.filter_by(sno=sno).all()
-        employees.name = name
-        employees.email = email
-        employees.phone = phone
-        employees.password = password
-        employees.branch = branch
-        employees.department = department
-        employees.designation = designation
+        db.session.query(Employees).filter_by(id = id).update(dict(name=name,
+                                                                   email=email,
+                                                                   phone=phone,
+                                                                   branch=branch,
+                                                                   department=department,
+                                                                   designation=designation))
+
         db.session.commit()
-        return redirect('/employee_edit/' + sno)
-    employees = Employees.query.filter_by(sno=sno).all()
+        return redirect('/employee')
+    employees = Employees.query.filter_by(id=id).first()
     total_branches = [{'branch': 'delhi'}, {'branch': 'mumbai'}]
     total_departments = [{'department': 'marketing'}, {'department': 'hr'}]
     total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
@@ -213,20 +213,55 @@ def employee_delete(id):
     return redirect('/employee')
 
 
-@app.route('/branches')
+@branch.route('/')
 def branches():
     # display branches table only to founder
     # Create edit add delete options with separate pages i.e. create frontend for edit  and add
-    pass
+    branches = Branches.query.filter_by().all()
+    return render_template('branches.html', branches = branches)
 
+@branch.route('/edit/<string:sno>', methods=['GET', 'POST'])
+#value repeating in dropdown(delhi delhi)
+#update queries (for designation) accodingly if
+# 1. branch-head is changed
+# 2. branch is deleted
+def edit_branch(sno):
 
-@app.route('/departments')
+    if request.method == 'POST':
+        name = request.form.get('name')
+        head = request.form.get('head')
+        address = request.form.get('address')
+        db.session.query(Branches).filter_by(sno=sno).update(dict(name=name,
+                                                                   head=head,
+                                                                   address=address,))
+
+        db.session.commit()
+        return redirect('/branch')
+    branch = Branches.query.filter_by(sno=sno).first()
+    total_heads = Employees.query.filter_by(branch=branch.name).all()
+    return render_template('branch_edit.html', branch=branch, total_heads=total_heads)
+
+@branch.route('/delete/<string:sno>', methods=['GET', 'POST'])
+def branch_delete(sno):
+    branch = Branches.query.filter_by(sno=sno).first()
+    db.session.delete(branch)
+    db.session.commit()
+    return redirect('/branch')
+
+@department.route('/')
 def departments():
     # display departments table only to founder
     # Create add and delete
     # create add by toggle option or drop down or drop down form
-    pass
+    departments = Departments.query.filter_by().all()
+    return render_template('department.html',departments=departments)
 
+@department.route('/delete/<string:sno>', methods=['GET', 'POST'])
+def delete_departments(sno):
+    department = Departments.query.filter_by(sno=sno).first()
+    db.session.delete(department)
+    db.session.commit()
+    return redirect('/department')
 
 @app.route('/profile')
 def profile():
@@ -243,6 +278,8 @@ def forgot_password():
 
 
 app.register_blueprint(dashboard)
+app.register_blueprint(branch)
+app.register_blueprint(department)
 app.run(debug=True)
 
 # improve profile frontend

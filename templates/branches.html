@@ -32,7 +32,7 @@
                                 <tr>
                                     <th>Branch Name</th>
                                     <th>Branch Head</th>
-                                    <th>Total Employees</th>
+                                    <th>Branch Address</th>
                                     <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
@@ -41,45 +41,25 @@
                                 <tr>
                                     <th>Branch Name</th>
                                     <th>Branch Head</th>
-                                    <th>Total Employees</th>
+                                    <th>Branch Address</th>
                                     <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </tfoot>
                             <tbody>
+                                {% for branch in branches %}
                                 <tr>
-                                    <td>Delhi</td>
-                                    <td>Aman</td>
-                                    <td>12</td>
+                                    <td>{{branch.name}}</td>
+                                    <td>{{branch.head}}</td>
+                                    <td>{{branch.address}}</td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
+                                        <a href="/branch/edit/{{branch.sno}}"><button type="button" class="btn btn-outline-primary">Edit</button></a>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
+                                        <a href="/branch/delete/{{branch.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>MP</td>
-                                    <td>Anuj</td>
-                                    <td>14</td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>UP</td>
-                                    <td>Amit</td>
-                                    <td>20</td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-primary">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-outline-danger">Delete</button>
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
