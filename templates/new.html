@@ -15,37 +15,52 @@
 <div id="layoutSidenav_content">
     <main>
         <div class="container-fluid">
-        <h1 class="display-3 my-4">Departments</h1>
+        <h1 class="display-3 my-4">New Employees</h1>
         <hr class="my-4">
-        <div class="card text-center">
-          <div class="card">
-            <button type="button" class="btn btn-outline-dark">Add Department</button>
-          </div>
-        </div>
-        <br>
+        
         <div class="card mb-4">
-             <div class="card-header"><i class="fas fa-table mr-1"></i>Departments</div>
+             <div class="card-header"><i class="fas fa-table mr-1"></i>New Employees</div>
                  <div class="card-body">
                      <div class="table-responsive">
                          <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
-                                    <th>Department Name</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Branch</th>
+                                    <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr>
-                                    <th>Department Name</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Branch</th>
+                                    <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </tfoot>
                             <tbody>
-                                {% for department in departments %}
+                                {% for employee in employees %}
                                 <tr>
-                                    <td>{{department.name}}</td>
+                                    <td>{{employee.name}}</td>
+                                    <td>{{employee.email}}</td>
+                                    <td>{{employee.phone}}</td>
+                                    <td>{{employee.designation}}</td>
+                                    <td>{{employee.department}}</td>
+                                    <td>{{employee.branch}}</td>
                                     <td>
-                                        <a href="/department/delete/{{department.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
+                                        <a href="/new/edit/{{employee.id}}"><button type="button" class="btn btn-outline-primary">Edit</button></a>
+                                    </td>
+                                    <td>
+                                        <a href="/new/delete/{{employee.id}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
                                     </td>
                                 </tr>
                                 {% endfor %}
