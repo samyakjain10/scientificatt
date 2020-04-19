@@ -18,7 +18,7 @@
         <h1 class="display-3 my-4">Edit Details</h1>
         <hr class="my-4">
         <!-- Name Email Phone password state department designation-->
-        <form action = "/employee_edit/{{employee.id}}" method = "post" novalidate>
+        <form action = "/employee/branch_head/edit/{{employee.id}}" method = "post" novalidate>
           <div class="form-group">
             <label for="exampleFormControlInput1">Name</label>
             <input type="text" class="form-control" id="exampleFormControlInput1" value="{{employee.name}}" name="name">
@@ -34,11 +34,8 @@
           <div class="form-group">
             <label for="exampleFormControlInput1">Branch</label>
             <div class="input-group">
-              <select class="custom-select" id="inputGroupSelect04" name="branch">
+              <select class="custom-select" id="inputGroupSelect04" name="branch" disabled>
                 <option selected>{{employee.branch}}</option>
-                {% for o in total_branches %}
-                <option value="{{ o.branch }}">{{ o.branch }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
@@ -48,7 +45,7 @@
               <select class="custom-select" id="inputGroupSelect04" name="department">
                 <option selected>{{employee.department}}</option>
                 {% for o in total_departments %}
-                <option value="{{ o.department }}">{{ o.department }}</option>
+                <option value="{{ o.name }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
             </div>
