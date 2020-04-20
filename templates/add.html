@@ -20,18 +20,18 @@
         <h1 class="display-3 my-4">Create new project</h1>
         <hr class="my-4">
         <!-- Name Email Phone password state department designation-->
-        <form action = "/employee_edit/{{employee.id}}" method = "post" novalidate>
+        <form action = "/add" method = "post" novalidate>
           <div class="form-group">
-            <label for="exampleFormControlInput1">Name</label>
-            <input type="text" class="form-control" id="exampleFormControlInput1" value="{{employee.name}}" name="name">
+            <label for="exampleFormControlInput1">Project Name</label>
+            <input type="text" class="form-control" id="exampleFormControlInput1" name="name">
           </div>
           <div class="form-group">
-            <label for="exampleFormControlInput1">Employee</label>
-            <input type="email" class="form-control" id="exampleFormControlInput1" value="{{employee.email}}" name="employee">
+            <label for="exampleFormControlInput1">Assign to Employees</label>
+            <input type="email" class="form-control" id="exampleFormControlInput1" name="employee">
           </div>
           <div class="form-group">
             <label for="exampleFormControlInput1">Description</label>
-            <input type="text" class="form-control" id="exampleFormControlInput1" value="{{employee.name}}" name="description">
+            <input type="text" class="form-control" id="exampleFormControlInput1" name="description">
           </div>
           <div class="form-group">
             <label for="exampleFormControlInput1">Status</label>
@@ -46,9 +46,9 @@
           <div class="form-group">
             <label for="exampleFormControlInput1">Branch</label>
             <div class="input-group">
-              <select>
+              <select class="custom-select" id="inputGroupSelect04" name="branch">
                 {% for o in total_branches %}
-                <option value="{{ o.branch }}">{{ o.branch }}</option>
+                <option value="{{ o.name }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -56,13 +56,13 @@
           <div class="form-group">
             <label for="exampleFormControlInput1">Department</label>
             <div class="input-group">
-              <select>
+              <select class="custom-select" id="inputGroupSelect04" name="department">
                 {% for o in total_departments %}
-                <option value="{{ o.department }}">{{ o.department }}</option>
+                <option value="{{ o.name }}">{{ o.name }}</option>
                 {% endfor %}
               </select>
             </div>
-          </div>  
+          </div> 
           <div class="form-group">
             <button type="submit" class="btn btn-primary">          Add          </button>
           </div>

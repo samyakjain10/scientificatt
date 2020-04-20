@@ -84,7 +84,7 @@
                         <div class="input-group">
                             <select class="custom-select" id="inputGroupSelect04" name="add_employee" placeholder="Select Employee">
                                 {% for o in employees %}
-                                <option value=" ">{{ o.name }}</option>
+                                <option value="{{ o.name }}">{{ o.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -108,7 +108,6 @@
                 </div>
             </div>
         </a>
-        {{projects.employee}}
             <!-- <br>
             <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/add_employee/{{projects.sno}}"><button class="btn btn-primary" type="button">Add Employee</button></a></div><br>
             <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/edit/{{projects.sno}}"><button class="btn btn-primary" type="button">Edit Project</button></a></div><br>
