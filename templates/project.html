@@ -54,8 +54,10 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <a class="nav-link my-2" href="/"><div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>Projects</a>
+                {% if user.designation=='Founder' %}
                 <a class="nav-link my-2" href="/departments/"><div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>Departments</a>
                 <a class="nav-link my-2" href="/branches/"><div class="sb-nav-link-icon"><i class="fas fa-globe"></i></div>Branches</a>
+                {% endif %}
                 <a class="nav-link my-2" href="/employee/"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
                 <a class="nav-link my-2" href="/register"><div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>Register an employee</a>
             </div>
@@ -67,55 +69,50 @@
     </nav>
 </div>
 <div id="layoutSidenav_content">
-    <main>
-        <div class="container-fluid">
-        <h1 class="display-3 my-4">Departments</h1>
+<main>
+    <div class="container-fluid">
+        <h1 class="display-3 my-4">{{projects.name}}</h1>
         <hr class="my-4">
         <div class="card">
-          <div id="add" class="card text-center">
-            <button type="button" class="btn btn-outline-dark">Add Department<i id="add_icon" class="fa fa-chevron-down float-right mt-1"></i></button>
-          </div>
-          <div id="add_toggle" style="display: none;" class="mt-2 px-3 py-3">
-            <form method="POST" action="/add_department">
-                <div class="form-group"><label class="mb-1" for="inputName">Department Name</label><input class="form-control py-4" id="inputName" name="name" type="text" placeholder="Enter department name" /></div>
-                <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><button class="btn btn-primary" type="submit"><i class="fa fa-plus mt-1"></i>  Add</button></div>
-            </form>
-        </div>
-        </div>
-        
-        <br>
-        <div class="card mb-4">
-             <div class="card-header"><i class="fas fa-table mr-1"></i>Departments</div>
-                 <div class="card-body">
-                     <div class="table-responsive">
-                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th>Department Name</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tfoot>
-                                <tr>
-                                    <th>Department Name</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </tfoot>
-                            <tbody>
-                                {% for department in departments %}
-                                <tr>
-                                    <td>{{department.name}}</td>
-                                    <td>
-                                        <a href="/delete_department/{{department.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
-                                    </td>
-                                </tr>
+            <div id="add" class="card text-center">
+                <button type="button" class="btn btn-outline-dark">Add Employee<i id="add_icon" class="fa fa-chevron-down float-right mt-1"></i></button>
+            </div>
+            <div id="add_toggle" style="display: none;" class="mt-2 px-3 py-3">
+                <form method="POST" action="/dashboard/add_employee/{{projects.sno}}/">
+                    <div class="form-group">
+                    <label for="exampleFormControlInput1">Employee</label>
+                        <div class="input-group">
+                            <select class="custom-select" id="inputGroupSelect04" name="add_employee" placeholder="Select Employee">
+                                {% for o in employees %}
+                                <option value=" ">{{ o.name }}</option>
                                 {% endfor %}
-                            </tbody>
-                        </table>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                    <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><button class="btn btn-primary" type="submit"><i class="fa fa-plus mt-1"></i>  Add</button></div>
+                </form>
             </div>
         </div>
+        <br>
+        <a href="/dashboard/edit/{{projects.sno}}" class="text-decoration-none">
+            <div class="card">
+                <div class="card text-center">
+                    <button type="button" class="btn btn-outline-dark">Edit Project</button>
+                </div>
+            </div>
+        </a>
+        <a href="/dashboard/delete/{{projects.sno}}" class="text-decoration-none">
+            <div class="card">
+                <div class="card text-center">
+                    <button type="button" class="btn btn-outline-dark">Delete Project</button>
+                </div>
+            </div>
+        </a>
+        {{projects.employee}}
+            <!-- <br>
+            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/add_employee/{{projects.sno}}"><button class="btn btn-primary" type="button">Add Employee</button></a></div><br>
+            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/edit/{{projects.sno}}"><button class="btn btn-primary" type="button">Edit Project</button></a></div><br>
+            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/delete/{{projects.sno}}"><button class="btn btn-primary" type="button">Delete Project</button></a></div> -->
     </div>
 </main>
                 </div>

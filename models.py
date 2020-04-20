@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -15,8 +15,9 @@ login_manager.login_view = 'login'
 dashboard = Blueprint('login', __name__, url_prefix='/dashboard')  # admin   branch-head   employee
 branch = Blueprint('branch', __name__, url_prefix='/branches')  # admin
 department = Blueprint('department', __name__, url_prefix='/departments')  # admin
-employee = Blueprint('employee',__name__, url_prefix='/employee')                               #  admin   branch-head
-new_employee = Blueprint('new_employee',__name__, url_prefix='/new')
+employee = Blueprint('employee', __name__, url_prefix='/employee')  # admin   branch-head
+new_employee = Blueprint('new_employee', __name__, url_prefix='/new')
+
 
 # assign_project = Blueprint('assign_project',__name__, url_prefix='/assign-project')             #  admin   branch-head
 # assign_department = Blueprint('assign_department',__name__, url_prefix='/assign-department')    #  admin   branch-head
@@ -68,7 +69,8 @@ class New(db.Model):
 def load_user(employee_id):
     return Employees.query.get(employee_id)
 
-#DEBUG REMEMBER ME
+
+# DEBUG REMEMBER ME
 @app.route('/', methods=['GET', 'POST'])
 def login():
     # Take care of security while logging in
@@ -107,6 +109,7 @@ def logout():
     logout_user()
     return redirect('/')
 
+
 @dashboard.route('/admin/')
 def admin_dashboard():
     # filter by all projects
@@ -128,9 +131,9 @@ def branch_head_dashboard():
     # assign page should have a dropdown with a list of all the employees to select from them
     # either create session variable of branch and use it to fetch projects of the branch to display to the branchhead
     # Or fetch branch from employee table using filter with sno = session['sno'] and then use branch of that employee i.e. employee.branch to filter projects
-    project1 = Projects.query.filter((Projects.branch==current_user.branch)&(Projects.status=='ACTIVE')).all()
-    project2 = Projects.query.filter((Projects.branch==current_user.branch)&(Projects.status=='COMPLETED')).all()
-    return render_template('state_head_module.html', user=current_user ,project1=project1, project2=project2)
+    project1 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'ACTIVE')).all()
+    project2 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'COMPLETED')).all()
+    return render_template('state_head_module.html', user=current_user, project1=project1, project2=project2)
 
 
 @dashboard.route('/employee/')
@@ -138,6 +141,40 @@ def employee_dashboard():
     # filter projects using email of the respective person
     project = Projects.query.filter_by(employee=current_user.email).all()
     return render_template('employee_module.html', project=project, user=current_user)
+
+
+@dashboard.route('/<string:sno>/')
+def project_dashboard(sno):
+    projects = Projects.query.filter_by(sno=sno).first()
+    if current_user.designation == 'Founder':
+        employees = Employees.query.filter_by().all()
+    else:
+        employees = Employees.query.filter_by(branch=current_user.branch).all()
+    return render_template('project.html', user=current_user, projects=projects, employees=employees)
+
+
+@dashboard.route('/add_employee/<string:sno>/', methods=['GET', 'POST'])
+def add_employee(sno):
+    if request.method == 'POST':
+        add_employee = request.form.get('add_employee')
+        employee = Employees.query.filter_by(name=add_employee).first()
+        projects = Projects.query.filter_by(sno=sno).first()
+        list(projects.employee).append(employee.email)
+        db.session.commit()
+    return redirect('/dashboard/' + sno + '/')
+
+
+@dashboard.route('/edit/<string:sno>/', methods=['GET', 'POST'])
+def project_edit(sno):
+    return render_template('project_edit.html', user=current_user)
+
+
+@dashboard.route('/delete/<string:sno>/', methods=['GET', 'POST'])
+def project_delete(sno):
+    project = Projects.query.filter_by(sno=sno).first()
+    db.session.delete(project)
+    db.session.commit()
+    return redirect('/dashboard/' + sno + '/')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -194,6 +231,7 @@ def register_login():
         total_branches = Branches.query.filter_by().all()
         return render_template('register_login.html', total_branches=total_branches)
 
+
 @new_employee.route('/', methods=['GET', 'POST'])
 def new():
     # display table of employees with department or branch as not assigned also need to make frontend template
@@ -203,11 +241,12 @@ def new():
         total_branches = Branches.query.filter_by().all()
 
     elif current_user.designation == "Branch Head":
-        employees = New.query.filter_by(branch = current_user.branch).all()
-        total_branches = Branches.query.filter_by(name = current_user.branch).all()
+        employees = New.query.filter_by(branch=current_user.branch).all()
+        total_branches = Branches.query.filter_by(name=current_user.branch).all()
     return render_template('new.html', employees=employees, user=current_user, total_branches=total_branches)
 
-#test the following
+
+# test the following
 @new_employee.route('/assign/<string:id>', methods=['GET', 'POST'])
 def new_assign(id):
     if request.method == 'POST':
@@ -243,10 +282,10 @@ def new_assign(id):
     total_branches = Branches.query.filter_by().all()
     total_departments = Departments.query.filter_by().all()
 
-    if current_user == "Founder":
+    if current_user.designation == "Founder":
         total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
 
-    elif current_user == "Branch Head":
+    elif current_user.designation == "Branch Head":
         total_designations = [{'designation': 'Employee'}]
 
     return render_template('new_assign.html', employee=new,
@@ -262,7 +301,26 @@ def new_deny(id):
     db.session.commit()
     return redirect('/new')
 
-@app.route('/add', methods=['GET','POST'])
+
+@app.route('/add_department', methods=['GET', 'POST'])
+def add_department():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        entry = Departments(name=name)
+        db.session.add(entry)
+        db.session.commit()
+    return redirect('/departments/')
+
+
+@app.route('/delete_department/<string:sno>', methods=['GET', 'POST'])
+def delete_department(sno):
+    entry = Departments.query.filter_by(sno=sno).first()
+    db.session.delete(entry)
+    db.session.commit()
+    return redirect('/departments/')
+
+
+@app.route('/add', methods=['GET', 'POST'])
 def add():
     # sno, name, department, employee, branch, date, status, description
     if request.method == 'POST':
@@ -274,12 +332,12 @@ def add():
         department = request.form.get('department')
         date = datetime.now()
         entry = Projects(name=name,
-                          employee=employee,
-                          description=description,
-                          status=status,
-                          branch=branch,
-                          department=department,
-                          date=date)
+                         employee=[employee, ],
+                         description=description,
+                         status=status,
+                         branch=branch,
+                         department=department,
+                         date=date)
         db.session.add(entry)
         db.session.commit()
     # query department and branches from table
@@ -292,18 +350,20 @@ def add():
                            total_departments=total_departments,
                            total_status=total_status, user=current_user)
 
-#test entire employee module
+
+# test entire employee module
 @employee.route('/admin/')
 def employee_admin():
     employees = Employees.query.filter_by().all()
     return render_template('employee_admin.html', employees=employees, user=current_user)
 
+
 @employee.route('/branch_head/')
 def employee_branch_head():
-
-    branch = Branches.query.filter_by(head = current_user.name).first()
-    employees = Employees.query.filter_by((branch == branch)&(designation == 'Employee')).all()
+    branch = Branches.query.filter_by(head=current_user.name).first()
+    employees = Employees.query.filter_by((branch == branch) & (designation == 'Employee')).all()
     return render_template('employee_branch_head.html', employees=employees, user=current_user)
+
 
 @employee.route('/admin/edit/<string:id>', methods=['GET', 'POST'])
 def employee_admin_edit(id):
@@ -332,12 +392,14 @@ def employee_admin_edit(id):
                            total_departments=total_departments,
                            total_designations=total_designations, user=current_user)
 
+
 @employee.route('/admin/delete/<string:id>', methods=['GET', 'POST'])
 def employee_admin_delete(id):
     employee = Employees.query.filter_by(id=id).first()
     db.session.delete(employee)
     db.session.commit()
     return redirect('/employee/admin')
+
 
 @employee.route('/branch_head/edit/<string:id>', methods=['GET', 'POST'])
 def employee_branch_head_edit(id):
@@ -364,12 +426,14 @@ def employee_branch_head_edit(id):
                            total_departments=total_departments,
                            total_designations=total_designations, user=current_user)
 
+
 @employee.route('/branch_head/delete/<string:id>', methods=['GET', 'POST'])
 def employee_branch_head_delete(id):
     employee = Employees.query.filter_by(id=id).first()
     db.session.delete(employee)
     db.session.commit()
     return redirect('/employee/branch_head')
+
 
 @branch.route('/')
 def branches():
@@ -407,6 +471,7 @@ def branch_delete(sno):
     db.session.commit()
     return redirect('/branch')
 
+
 @department.route('/')
 def departments():
     # display departments table only to founder
@@ -423,12 +488,13 @@ def delete_departments(sno):
     db.session.commit()
     return redirect('/department')
 
+
 @app.route('/profile')
 def profile():
     # use session variable to get email and display details accordingly
     # improve frontend
     # profile edit option
-    return render_template('profile.html')
+    return render_template('profile.html', user=current_user)
 
 
 @app.route('/forgot_password')
@@ -445,6 +511,7 @@ app.register_blueprint(new_employee)
 app.run(debug=True)
 
 # improve profile frontend
+# improve project frontend
 # improve logo on left top corner frontend
 # add footer with privacy policy
 # change card frontend

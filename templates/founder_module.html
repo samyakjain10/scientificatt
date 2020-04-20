@@ -2,7 +2,7 @@
 {% block content %}
                 <a class="nav-link my-2" href="/departments/"><div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>Departments</a>
                 <a class="nav-link my-2" href="/branches/"><div class="sb-nav-link-icon"><i class="fas fa-globe"></i></div>Branches</a>
-                <a class="nav-link my-2" href="/employee/"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
+                <a class="nav-link my-2" href="/employee/admin"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
                 <a class="nav-link my-2" href="/register"><div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>Register an employee</a>
                 <a class="nav-link my-2" href="/new"><div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>New registrations</a>
                 <a class="nav-link my-2" href="/add"><div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>Create new project</a>
@@ -24,7 +24,7 @@
             {% for item in project1 %}
             <div class="col-xl-4 col-md-6 mb-4">                
                 <div class="card" style="width: 18rem;">
-                    <a href="#" class="card-link mr-3 mb-3">  
+                    <a href="/dashboard/{{item.sno}}" class="card-link mr-3 mb-3">  
                         <img src="{{ url_for('static', filename='Company_logo.png') }}" class="card-img-top" alt="...">
                         <div class="card-body">
                             <div class="mb-3">
@@ -45,7 +45,7 @@
             {% for item in project2 %}
             <div class="col-xl-4 col-md-6 mb-4">                
                 <div class="card" style="width: 18rem;">
-                    <a href="#" class="card-link mr-3 mb-3">  
+                    <a href="/dashboard/{{item.sno}}" class="card-link mr-3 mb-3">  
                         <img src="{{ url_for('static', filename='Company_logo.png') }}" class="card-img-top" alt="...">
                         <div class="card-body">
                             <div class="mb-3">
