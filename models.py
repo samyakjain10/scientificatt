@@ -3,10 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -159,7 +160,17 @@ def add_employee(sno):
         add_employee = request.form.get('add_employee')
         employee = Employees.query.filter_by(name=add_employee).first()
         projects = Projects.query.filter_by(sno=sno).first()
-        list(projects.employee).append(employee.email)
+
+        #string received
+        stremp = projects.employee
+
+        #convert string to list and then append
+        listemp = json.loads(stremp)
+        listemp.append(employee.email)
+
+        #convert list back to string and store in db
+        stremp = json.dumps(listemp)
+        db.session.query(Projects).filter_by(sno=sno).update(dict(employee=stremp))
         db.session.commit()
     return redirect('/dashboard/' + sno + '/')
 
@@ -445,7 +456,7 @@ def branches():
 
 @branch.route('/edit/<string:sno>', methods=['GET', 'POST'])
 # value repeating in dropdown(delhi delhi)
-# update queries (for designation) accodingly if
+# update queries (for designation) accordingly if
 # 1. branch-head is changed
 # 2. branch is deleted
 def edit_branch(sno):
