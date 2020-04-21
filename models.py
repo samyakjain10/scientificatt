@@ -7,7 +7,7 @@ import json
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -177,7 +177,35 @@ def add_employee(sno):
 
 @dashboard.route('/edit/<string:sno>/', methods=['GET', 'POST'])
 def project_edit(sno):
-    return render_template('project_edit.html', user=current_user)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        status = request.form.get('status')
+        branch = request.form.get('branch')
+        department = request.form.get('department')
+        db.session.query(Projects).filter_by(sno=sno).update(dict(name=name,
+                                                                 description=description,
+                                                                 status=status,
+                                                                 branch=branch,
+                                                                 department=department))
+        db.session.commit()
+        return redirect('/dashboard/' + sno + '/')
+    total_branches = Branches.query.filter_by().all()
+    project = Projects.query.filter_by(sno=sno).first()
+    total_departments = Departments.query.filter_by().all()
+    total_status = ['ACTIVE', 'COMPLETED']
+    if current_user.designation == 'Founder':
+        total_employees = Employees.query.filter_by().all()
+    else:
+        total_employees = Employees.query.filter_by(branch=current_user.branch).all()
+
+    return render_template('project_edit.html',
+                           project=project,
+                           total_branches=total_branches,
+                           total_departments=total_departments,
+                           total_status=total_status,
+                           total_employees=total_employees,
+                           user=current_user)
 
 
 @dashboard.route('/delete/<string:sno>/', methods=['GET', 'POST'])
@@ -337,13 +365,16 @@ def add():
     if request.method == 'POST':
         name = request.form.get('name')
         employee = request.form.get('employee')
+        emp = Employees.query.filter_by(name=employee).first()
+        listemp = [emp.email, ]
+        stremp = json.dumps(listemp)
         description = request.form.get('description')
         status = request.form.get('status')
         branch = request.form.get('branch')
         department = request.form.get('department')
         date = datetime.now()
         entry = Projects(name=name,
-                         employee=[employee, ],
+                         employee=stremp,
                          description=description,
                          status=status,
                          branch=branch,
@@ -355,11 +386,17 @@ def add():
     total_branches = Branches.query.filter_by().all()
     total_departments = Departments.query.filter_by().all()
     total_status = ['ACTIVE', 'COMPLETED']
+    if current_user.designation == 'Founder':
+        total_employees = Employees.query.filter_by().all()
+    else:
+        total_employees = Employees.query.filter_by(branch=current_user.branch).all()
 
     return render_template('add.html',
                            total_branches=total_branches,
                            total_departments=total_departments,
-                           total_status=total_status, user=current_user)
+                           total_status=total_status,
+                           total_employees=total_employees,
+                           user=current_user)
 
 
 # test entire employee module
@@ -372,7 +409,7 @@ def employee_admin():
 @employee.route('/branch_head/')
 def employee_branch_head():
     branch = Branches.query.filter_by(head=current_user.name).first()
-    employees = Employees.query.filter_by((branch == branch) & (designation == 'Employee')).all()
+    employees = Employees.query.filter_by((Employees.branch == branch) & (Employees.designation == 'Employee')).all()
     return render_template('employee_branch_head.html', employees=employees, user=current_user)
 
 

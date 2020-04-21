@@ -26,8 +26,14 @@
             <input type="text" class="form-control" id="exampleFormControlInput1" name="name">
           </div>
           <div class="form-group">
-            <label for="exampleFormControlInput1">Assign to Employees</label>
-            <input type="email" class="form-control" id="exampleFormControlInput1" name="employee">
+            <label for="exampleFormControlInput1">Assign Employee</label>
+            <div class="input-group">
+              <select class="custom-select" id="inputGroupSelect04" name="employee">
+                {% for o in total_employees %}
+                <option value="{{ o.name }}">{{ o.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label for="exampleFormControlInput1">Description</label>
@@ -36,7 +42,7 @@
           <div class="form-group">
             <label for="exampleFormControlInput1">Status</label>
             <div class="input-group">
-              <select>
+              <select id="inputGroupSelect04" name="status">
                 {% for o in total_status %}
                 <option value="{{ o }}">{{ o }}</option>
                 {% endfor %}
