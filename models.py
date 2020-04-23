@@ -7,7 +7,7 @@ import json
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -140,8 +140,17 @@ def branch_head_dashboard():
 @dashboard.route('/employee/')
 def employee_dashboard():
     # filter projects using email of the respective person
-    project = Projects.query.filter_by(employee=current_user.email).all()
-    return render_template('employee_module.html', project=project, user=current_user)
+    projects = Projects.query.filter_by().all()
+    assignedprojects = []
+    for project in projects:
+        stremp = project.employee
+        listemp = json.loads(stremp)
+
+        for email in listemp:
+            if(email == current_user.email):
+                assignedprojects.append(project)
+
+    return render_template('employee_module.html', project=assignedprojects, user=current_user)
 
 
 @dashboard.route('/<string:sno>/')
@@ -166,15 +175,16 @@ def project_delete_employee(sno, i):
     stremp = projects.employee
     listemp = json.loads(stremp)
     listempnames = []
-    for i in listemp:
-        name = Employees.query.filter_by(email=i).first().name
+    for email in listemp:
+        name = Employees.query.filter_by(email=email).first().name
         listempnames.append(name)
     a = listempnames.index(i)
     del listemp[a]
     stremp = json.dumps(listemp)
     db.session.query(Projects).filter_by(sno=sno).update(dict(employee=stremp))
+    db.session.commit()
 
-
+    return redirect('/dashboard/' + sno + '/')
 
 @dashboard.route('/add_employee/<string:sno>/', methods=['GET', 'POST'])
 def add_employee(sno):
@@ -430,8 +440,8 @@ def employee_admin():
 
 @employee.route('/branch_head/')
 def employee_branch_head():
-    branch = Branches.query.filter_by(head=current_user.name).first()
-    employees = Employees.query.filter_by((Employees.branch == branch) & (Employees.designation == 'Employee')).all()
+    branch = (Branches.query.filter_by(head=current_user.name).first()).name
+    employees = Employees.query.filter((Employees.branch == branch) & (Employees.designation == 'Employee')).all()
     return render_template('employee_branch_head.html', employees=employees, user=current_user)
 
 
@@ -491,7 +501,7 @@ def employee_branch_head_edit(id):
         return redirect('/employee/branch_head/')
     employees = Employees.query.filter_by(id=id).first()
     total_departments = Departments.query.filter_by().all()
-    total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
+    total_designations = [{'designation': 'Employee'}]
     return render_template('employee_branch_head_edit.html', employee=employees,
                            total_departments=total_departments,
                            total_designations=total_designations, user=current_user)
@@ -571,6 +581,11 @@ def profile():
 def forgot_password():
     # think the approach as we have prob with smtp server while hosting so cant send emails
     pass
+
+#complete the code(backend)
+@app.route('/change_password')
+def change_password():
+    return render_template('change_password.html', user=current_user)
 
 
 app.register_blueprint(dashboard)
