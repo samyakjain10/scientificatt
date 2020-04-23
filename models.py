@@ -147,11 +147,33 @@ def employee_dashboard():
 @dashboard.route('/<string:sno>/')
 def project_dashboard(sno):
     projects = Projects.query.filter_by(sno=sno).first()
+    stremp = projects.employee
+    listemp = json.loads(stremp)
+    listempnames = []
+    for i in listemp:
+        name = Employees.query.filter_by(email=i).first().name
+        listempnames.append(name)
     if current_user.designation == 'Founder':
         employees = Employees.query.filter_by().all()
     else:
         employees = Employees.query.filter_by(branch=current_user.branch).all()
-    return render_template('project.html', user=current_user, projects=projects, employees=employees)
+    return render_template('project.html', user=current_user, projects=projects, employees=employees, listemp=listemp, listempnames=listempnames)
+
+
+@dashboard.route('/delete_employee/<string:sno>/<string:i>')
+def project_delete_employee(sno, i):
+    projects = Projects.query.filter_by(sno=sno).first()
+    stremp = projects.employee
+    listemp = json.loads(stremp)
+    listempnames = []
+    for i in listemp:
+        name = Employees.query.filter_by(email=i).first().name
+        listempnames.append(name)
+    a = listempnames.index(i)
+    del listemp[a]
+    stremp = json.dumps(listemp)
+    db.session.query(Projects).filter_by(sno=sno).update(dict(employee=stremp))
+
 
 
 @dashboard.route('/add_employee/<string:sno>/', methods=['GET', 'POST'])
