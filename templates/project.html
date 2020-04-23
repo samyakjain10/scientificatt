@@ -94,24 +94,97 @@
             </div>
         </div>
         <br>
-        <a href="/dashboard/edit/{{projects.sno}}" class="text-decoration-none">
-            <div class="card">
-                <div class="card text-center">
-                    <button type="button" class="btn btn-outline-dark">Edit Project</button>
-                </div>
+        <div class="row">
+            <div class="col-xl-6 col-md-6"> 
+                <a href="/dashboard/edit/{{projects.sno}}" class="text-decoration-none">
+                    <div class="card">
+                        <div class="card text-center">
+                            <button type="button" class="btn btn-outline-dark">Edit Project</button>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-        <a href="/dashboard/delete/{{projects.sno}}" class="text-decoration-none">
-            <div class="card">
-                <div class="card text-center">
-                    <button type="button" class="btn btn-outline-dark">Delete Project</button>
-                </div>
+            <div class="col-xl-6 col-md-6"> 
+                <a href="/dashboard/delete/{{projects.sno}}" class="text-decoration-none">
+                    <div class="card">
+                        <div class="card text-center">
+                            <button type="button" class="btn btn-outline-dark">Delete Project</button>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-            <!-- <br>
-            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/add_employee/{{projects.sno}}"><button class="btn btn-primary" type="button">Add Employee</button></a></div><br>
-            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/edit/{{projects.sno}}"><button class="btn btn-primary" type="button">Edit Project</button></a></div><br>
-            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0"><a href="/dashboard/delete/{{projects.sno}}"><button class="btn btn-primary" type="button">Delete Project</button></a></div> -->
+        </div>
+        <div class="row px-5 mt-5">
+            <div class="card bg-dark text-white mb-3" style="width: 72rem;">
+              <div class="card-header"><h4>Branch</h4></div>
+              <div class="card-body bg-light text-dark">
+                <p class="card-text">{{projects.branch}}</p>
+              </div>
+            </div>
+            <div class="card bg-dark text-white mb-3" style="width: 72rem;">
+              <div class="card-header"><h4>Department</h4></div>
+              <div class="card-body bg-light text-dark">
+                <p class="card-text">{{projects.department}}</p>
+              </div>
+            </div>
+            <div class="card bg-dark text-white mb-3" style="width: 72rem;">
+              <div class="card-header"><h4>Start Date</h4></div>
+              <div class="card-body bg-light text-dark">
+                <p class="card-text">{{projects.date}}</p>
+              </div>
+            </div>
+            <div class="card bg-dark text-white mb-3" style="width: 72rem;">
+              <div class="card-header"><h4>Status</h4></div>
+              <div class="card-body bg-light text-dark">
+                <p class="card-text">{{projects.status}}</p>
+              </div>
+            </div>
+            <div class="card bg-dark text-white mb-3" style="width: 72rem;">
+              <div class="card-header"><h4>Description</h4></div>
+              <div class="card-body bg-light text-dark">
+                <p class="card-text">{{projects.description}}</p>
+              </div>
+            </div>
+        </div>
+        <div class="row px-5">
+            <div class="card mb-4" style="width: 72rem;">
+                <div class="card-header bg-dark text-white"><h4><i class="fas fa-table mr-1"></i>Assigned Employees</h4></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    {% if user.designation!='Employee' %}
+                                    <th>Delete</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    {% if user.designation!='Employee' %}
+                                    <th>Delete</th>
+                                    {% endif %}
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for i in listempnames %}
+                                <tr>
+                                    <td>{{i}}</td>
+                                    {% if user.designation!='Employee' %}
+                                    <td>
+                                        <a href="/dashboard/delete_employee/{{projects.sno}}/{{i}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>            
+        </div>
     </div>
 </main>
                 </div>
