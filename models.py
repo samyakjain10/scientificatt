@@ -1,14 +1,16 @@
 from flask import Flask, request, render_template, redirect, Blueprint, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
 import json
+import os
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql' \
-                                        '://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
+app.config['UPLOAD_FOLDER'] = "C:\\Users\\Jain\\PycharmProjects\\scientificatt\\static"
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -45,7 +47,7 @@ class Branches(db.Model):
 class Departments(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), nullable=False)
-
+    image = db.Column(db.String(30), nullable=True)
 
 class Projects(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
@@ -414,10 +416,19 @@ def new_deny(id):
 def add_department():
     if request.method == 'POST':
         name = request.form.get('name')
-        entry = Departments(name=name)
+        image = " "
+        entry = Departments(name=name,image=image)
         db.session.add(entry)
         db.session.commit()
     return redirect('/departments/')
+
+@app.route('/uploader/<string:sno>', methods=['GET', 'POST'])
+def upload_image(sno):
+    if request.method == 'POST':
+        f = request.files['fileupload']
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'],secure_filename(f.filename)))
+
+    return redirect('/departments')
 
 
 @app.route('/delete_department/<string:sno>', methods=['GET', 'POST'])
@@ -595,16 +606,9 @@ def departments():
     # Create add and delete
     # create add by toggle option or drop down or drop down form
     departments = Departments.query.filter_by().all()
+    for department in departments:
+        print(department.image)
     return render_template('department.html', departments=departments, user=current_user)
-
-
-@department.route('/delete/<string:sno>', methods=['GET', 'POST'])
-def delete_departments(sno):
-    department = Departments.query.filter_by(sno=sno).first()
-    db.session.delete(department)
-    db.session.commit()
-    return redirect('/department')
-
 
 @app.route('/profile')
 def profile():
