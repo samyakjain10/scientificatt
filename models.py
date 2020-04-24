@@ -23,9 +23,6 @@ employee = Blueprint('employee', __name__, url_prefix='/employee')  # admin   br
 new_employee = Blueprint('new_employee', __name__, url_prefix='/new')
 
 
-# assign_project = Blueprint('assign_project',__name__, url_prefix='/assign-project')             #  admin   branch-head
-# assign_department = Blueprint('assign_department',__name__, url_prefix='/assign-department')    #  admin   branch-head
-
 class Employees(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), nullable=False)
@@ -53,7 +50,7 @@ class Projects(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     department = db.Column(db.String(50), nullable=False)
-    employee = db.Column(db.String(100), nullable=False)
+    employee = db.Column(db.String(65000), nullable=False)
     branch = db.Column(db.String(30), nullable=False)
     date = db.Column(db.String(30), nullable=False)
     status = db.Column(db.String(30), nullable=False)
@@ -286,7 +283,7 @@ def project_delete(sno):
     project = Projects.query.filter_by(sno=sno).first()
     db.session.delete(project)
     db.session.commit()
-    return redirect('/dashboard/' + sno + '/')
+    return redirect('/')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -314,7 +311,12 @@ def register_employee():
     # query department and branches from table
     total_branches = Branches.query.filter_by().all()
     total_departments = Departments.query.filter_by().all()
-    total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
+
+    if current_user.designation == "Founder":
+        total_designations = [{'designation': 'Founder'}, {'designation': 'Branch Head'}, {'designation': 'Employee'}]
+
+    elif current_user.designation == "Branch Head":
+        total_designations = [{'designation': 'Employee'}]
 
     return render_template('register.html',
                            total_branches=total_branches,
@@ -462,7 +464,8 @@ def add():
                          status=status,
                          branch=branch,
                          department=department,
-                         date=date)
+                         date=date,
+                         report="[]")
         db.session.add(entry)
         db.session.commit()
     # query department and branches from table
@@ -491,7 +494,7 @@ def employee_admin():
 
 @employee.route('/branch_head/')
 def employee_branch_head():
-    branch = (Branches.query.filter_by(head=current_user.name).first()).name
+    branch = current_user.branch
     employees = Employees.query.filter((Employees.branch == branch) & (Employees.designation == 'Employee')).all()
     return render_template('employee_branch_head.html', employees=employees, user=current_user)
 
@@ -589,7 +592,7 @@ def edit_branch(sno):
                                                                   address=address))
 
         db.session.commit()
-        return redirect('/branch')
+        return redirect('/branches')
     branch = Branches.query.filter_by(sno=sno).first()
     total_heads = Employees.query.filter_by(branch=branch.name).all()
     return render_template('branch_edit.html', branch=branch, total_heads=total_heads, user=current_user)
@@ -600,7 +603,7 @@ def branch_delete(sno):
     branch = Branches.query.filter_by(sno=sno).first()
     db.session.delete(branch)
     db.session.commit()
-    return redirect('/branch')
+    return redirect('/branches')
 
 
 @department.route('/')
@@ -644,9 +647,3 @@ app.register_blueprint(department)
 app.register_blueprint(employee)
 app.register_blueprint(new_employee)
 app.run(debug=True)
-
-# improve profile frontend
-# improve project frontend
-# improve logo on left top corner frontend
-# add footer with privacy policy
-# change card frontend

@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2020 at 10:47 AM
+-- Generation Time: Apr 24, 2020 at 07:59 PM
 -- Server version: 10.4.11-MariaDB
--- PHP Version: 7.4.4
+-- PHP Version: 7.4.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -39,8 +40,8 @@ CREATE TABLE `branches` (
 --
 
 INSERT INTO `branches` (`Sno`, `Name`, `Head`, `Address`) VALUES
-(2, 'Delhi', 'Samyak Jain', 'new delhi'),
-(3, 'Mumbai', 'ABCD', 'andheri');
+(1, 'Delhi', 'Branch Head 1', 'New Delhi'),
+(2, 'Mumbai', 'Branch Head 2', 'Andheri');
 
 -- --------------------------------------------------------
 
@@ -59,9 +60,11 @@ CREATE TABLE `departments` (
 --
 
 INSERT INTO `departments` (`sno`, `name`, `image`) VALUES
-(3, 'Marketing', 'Company_logo.png'),
-(4, 'test', ' '),
-(5, 'test 2', ' ');
+(9, 'Influential Marketing', 'Influencer-Marketing.jpg'),
+(10, 'Web development', 'web-development.jpg'),
+(11, 'App Development', 'App-Development.png'),
+(12, 'Network Marketing', 'network_marketing.jpg'),
+(13, 'Digital Marketing', 'DIGITAL-MARKETING.jpg');
 
 -- --------------------------------------------------------
 
@@ -85,11 +88,14 @@ CREATE TABLE `employees` (
 --
 
 INSERT INTO `employees` (`id`, `Name`, `Email`, `Phone`, `Password`, `Branch`, `Department`, `Designation`) VALUES
-(4, 'ISHAAN KAMRA', 'ishaan1091@gmail.com', '9876543210', 'sha256$JFAsZDCW$cb81d8365a8bb4e85aa31a53f4bc6c262c83c858a56f31635005bdb63433ebf8', 'Delhi', 'NOT ASSIGNED', 'Founder'),
-(10, 'Samyak Jain', 'sjsamyak2001@gmail.com', '8810433039', 'sha256$oTYEI8fM$e7afd5524809a99eab35431cf19401152acc6bc9e3f6bdc46a79dee77bb6caa4', 'Delhi', 'marketing', 'Founder'),
-(14, 'ABCD', 'ishaanrng@gmail.com', '9876543210', 'sha256$uhbmmZv8$5caec40c04f83fdba3b34eb430c37c32a2677fedd25c48fa323893ad5c6af965', 'Mumbai', 'NOT ASSIGNED', 'Branch Head'),
-(18, 'tushar', 'tushar@gmail.com', '9876544321', 'sha256$08v1BAGp$20dc823cefd0cbe8b675ce27f8fd2cbacdc87581129711a19e3abfc537698b52', 'Delhi', '', 'Employee'),
-(19, 'ABCD', 'ABCD@gmail.com', '9876544321', 'sha256$sof4SkEb$c8300e5ff4eb737da0aaee7294a9263a9a69601291a988dcc3524af0714a9ea2', 'Delhi', 'Marketing', 'Employee');
+(1, 'Founder 1', 'founder1@gmail.com', '9876543210', 'pbkdf2:sha256:150000$gfxf4S5g$0b5580e2c082ab9977e58b8dc214da003fd0221b3c1a535dc861f06a169631e8', 'Delhi', 'Influential Marketing', 'Founder'),
+(31, 'Founder 2', 'founder2@gmail.com', '9876543210', 'sha256$R0WBTJ9y$10995a173bfde8241d51c4c7c33ae818a6b685768ed9cbad9fd4696d7d4b5f9f', 'Mumbai', 'Influential Marketing', 'Founder'),
+(32, 'Branch Head 1', 'bh1@gmail.com', '9876543210', 'sha256$aXkT54ew$fa860611b1861c0093cd8a68b6128d7b6840fc73d9d6f7120d22125dd954bf58', 'Delhi', 'Influential Marketing', 'Branch Head'),
+(33, 'Branch Head 2', 'bh2@gmail.com', '9876543210', 'sha256$2DtWRVqb$98664a97475448763d439f419881bd1e8564b8796917df4b95c690a5eefe10de', 'Mumbai', 'Digital Marketing', 'Branch Head'),
+(34, 'Employee 1', 'employee1@gmail.com', '9876543210', 'sha256$QuNb8Y9c$b3852e4a74a45690e0c41fc641d1d21d64efaf3a66dd298b4fe680a9ba40e247', 'Delhi', 'Web development', 'Employee'),
+(35, 'Employee 2', 'employee2@gmail.com', '9876543210', 'sha256$VOzfQcKl$31330963d7a9cb5eb3e308f5ba069f44f2f16da2f85d8137466a55995bde751b', 'Delhi', 'Network Marketing', 'Employee'),
+(36, 'Employee 3', 'employee3@gmail.com', '9876543210', 'sha256$uoo9zcEu$47d4abf1f2da506dc66c76866a6af0eb2c97c97aa6c4755c0e0de535d89eebed', 'Mumbai', 'Influential Marketing', 'Employee'),
+(37, 'Employee 4', 'employee4@gmail.com', '9876543210', 'sha256$NxQJuS0M$a9ff5323d4d6444b13ad1bd1aceb103ed753a2e6f7fcd12f877fbc455b0b23fc', 'Mumbai', 'App Development', 'Employee');
 
 -- --------------------------------------------------------
 
@@ -116,7 +122,7 @@ CREATE TABLE `projects` (
   `sno` int(11) NOT NULL,
   `name` text NOT NULL,
   `department` text NOT NULL,
-  `employee` varchar(100) NOT NULL,
+  `employee` mediumtext NOT NULL,
   `branch` varchar(100) NOT NULL,
   `date` date DEFAULT current_timestamp(),
   `status` text NOT NULL,
@@ -129,10 +135,11 @@ CREATE TABLE `projects` (
 --
 
 INSERT INTO `projects` (`sno`, `name`, `department`, `employee`, `branch`, `date`, `status`, `description`, `report`) VALUES
-(3, 'test30 ', 'Marketing', '[\"ishaan1091@gmail.com\"]', 'Mumbai', '0000-00-00', 'ACTIVE', 'T E S T        T E S T             T E S T', '[\"Completed project\"]'),
-(4, 'test4', 'NOT ASSIGNED', '[\"ABCD@gmail.com\"]', 'NOT ASSIGNED', '0000-00-00', 'COMPLETED', 'test4 test4 test4 test4 test4', '[]'),
-(5, 'test5', 'Marketing', '[\"ishaan1091@gmail.com\"]', 'Delhi', '2020-04-21', 'ACTIVE', 'tttttttttt', '[]'),
-(6, 'test3', 'Marketing', '[\"ishaanrng@gmail.com\"]', 'Delhi', '2020-04-23', 'ACTIVE', 'tttttttttteeeeeeeeesssssssssttttttttt', '[]');
+(11, 'Project 1', 'Influential Marketing', '[\"founder1@gmail.com\"]', 'Delhi', '2020-04-24', 'ACTIVE', 'This is a test description', '[]'),
+(12, 'Project 2', 'Influential Marketing', '[\"bh1@gmail.com\"]', 'Mumbai', '2020-04-24', 'COMPLETED', 'This is a test description', '[]'),
+(13, 'Project 3', 'Web development', '[\"bh2@gmail.com\"]', 'Delhi', '2020-04-24', 'ACTIVE', 'This is a test description', '[]'),
+(14, 'Project 4', 'App Development', '[\"bh1@gmail.com\"]', 'Mumbai', '2020-04-24', 'COMPLETED', 'This is a test description', '[]'),
+(15, 'Project 5', 'Network Marketing', '[\"bh2@gmail.com\"]', 'Delhi', '2020-04-24', 'ACTIVE', 'This is a test description', '[]');
 
 --
 -- Indexes for dumped tables
@@ -182,25 +189,25 @@ ALTER TABLE `branches`
 -- AUTO_INCREMENT for table `departments`
 --
 ALTER TABLE `departments`
-  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `new`
 --
 ALTER TABLE `new`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
