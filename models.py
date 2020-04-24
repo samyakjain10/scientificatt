@@ -9,8 +9,8 @@ import os
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
-app.config['UPLOAD_FOLDER'] = "C:\\Users\\Jain\\PycharmProjects\\scientificatt\\static"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/scientificatt'
+app.config['UPLOAD_FOLDER'] = "C:\\Users\\ISHAAN KAMRA\\PycharmProjects\\scientificatt\\static"
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -125,7 +125,8 @@ def admin_dashboard():
     # assign page should have a dropdown with a list of all the employees to select from them
     project1 = Projects.query.filter_by(status='ACTIVE').all()
     project2 = Projects.query.filter_by(status='COMPLETED').all()
-    return render_template('founder_module.html', project1=project1, project2=project2, user=current_user)
+    department = Departments.query.filter_by().all()
+    return render_template('founder_module.html', project1=project1, project2=project2, user=current_user, department=department)
 
 
 @dashboard.route('/branch_head/')
@@ -138,7 +139,8 @@ def branch_head_dashboard():
     # Or fetch branch from employee table using filter with sno = session['sno'] and then use branch of that employee i.e. employee.branch to filter projects
     project1 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'ACTIVE')).all()
     project2 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'COMPLETED')).all()
-    return render_template('state_head_module.html', user=current_user, project1=project1, project2=project2)
+    department = Departments.query.filter_by().all()
+    return render_template('branch_head_module.html', user=current_user, project1=project1, project2=project2, department=department)
 
 
 @dashboard.route('/employee/')
@@ -153,8 +155,8 @@ def employee_dashboard():
         for email in listemp:
             if email == current_user.email:
                 assignedprojects.append(project)
-
-    return render_template('employee_module.html', project=assignedprojects, user=current_user)
+    department = Departments.query.filter_by().all()
+    return render_template('employee_module.html', project=assignedprojects, user=current_user, department=department)
 
 
 @dashboard.route('/<string:sno>/')
@@ -426,9 +428,10 @@ def add_department():
 def upload_image(sno):
     if request.method == 'POST':
         f = request.files['fileupload']
-        f.save(os.path.join(app.config['UPLOAD_FOLDER'],secure_filename(f.filename)))
-
-    return redirect('/departments')
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+        db.session.query(Departments).filter_by(sno=sno).update(dict(image=secure_filename(f.filename)))
+        db.session.commit()
+    return redirect('/departments/')
 
 
 @app.route('/delete_department/<string:sno>', methods=['GET', 'POST'])
@@ -606,8 +609,6 @@ def departments():
     # Create add and delete
     # create add by toggle option or drop down or drop down form
     departments = Departments.query.filter_by().all()
-    for department in departments:
-        print(department.image)
     return render_template('department.html', departments=departments, user=current_user)
 
 @app.route('/profile')
@@ -624,8 +625,16 @@ def forgot_password():
     pass
 
 #complete the code(backend)
-@app.route('/change_password')
+@app.route('/change_password', methods=['GET','POST'])
 def change_password():
+    if request.method == 'POST':
+        p1 = request.form.get('new_password')
+        p2 = request.form.get('retype_password')
+        if p1 == p2:
+            p = generate_password_hash(p1)
+            db.session.query(Employees).filter_by(id=current_user.id).update(dict(password=p))
+            db.session.commit()
+            return redirect('/logout')
     return render_template('change_password.html', user=current_user)
 
 
