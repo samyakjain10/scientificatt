@@ -54,10 +54,19 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <a class="nav-link my-2" href="/"><div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>Projects</a>
-                <a class="nav-link my-2 active" href="/departments/"><div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>Departments</a>
+                <a class="nav-link my-2" href="/departments/"><div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>Departments</a>
+                {% if user.designation=='Founder' %}
                 <a class="nav-link my-2" href="/branches/"><div class="sb-nav-link-icon"><i class="fas fa-globe"></i></div>Branches</a>
-                <a class="nav-link my-2" href="/employee/"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
+                {% endif %}
+                {% if user.designation=='Founder' %}
+                <a class="nav-link my-2" href="/employee/admin"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
+                {% endif %}
+                {% if user.designation=='Branch Head' %}
+                <a class="nav-link my-2" href="/employee/branch_head"><div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>Employees</a>
+                {% endif %}
                 <a class="nav-link my-2" href="/register"><div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>Register an employee</a>
+                <a class="nav-link my-2" href="/new"><div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>New registrations</a>
+                <a class="nav-link my-2" href="/add"><div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>Create new project</a>
             </div>
         </div>
         <div class="sb-sidenav-footer">
@@ -94,7 +103,9 @@
                                     <th>Department Name</th>
                                     <th>Image</th>
                                     <th>Upload New Image</th>
+                                    {% if user.designation=='Founder' %}
                                     <th>Delete</th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tfoot>
@@ -102,7 +113,9 @@
                                     <th>Department Name</th>
                                     <th>Image</th>
                                     <th>Upload New Image</th>
+                                    {% if user.designation=='Founder' %}
                                     <th>Delete</th>
+                                    {% endif %}
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -111,19 +124,21 @@
                                     <td>{{department.name}}</td>
                                     {% set fname = department.image %}
                                     {% if fname != " " %}
-                                    <td><img src="{{ url_for('static', filename=fname) }}" ></td>
+                                    <td><img src="{{ url_for('static', filename=fname) }}" width="100px" height="50px"></td>
                                     {% endif %}
                                     {% if fname == " " %}
                                     <td>No image file uploaded</td>
                                     {% endif %}
                                     <td>
                                         <form action="/uploader/{{department.sno}}" method="POST" enctype="multipart/form-data">
-                                            <input type="file" name="fileupload">
+                                            <input type="file" name="fileupload" accept="image/*">
                                             <button type="submit" class="btn btn-outline-primary">Upload</button>
                                         </form>
+                                    {% if user.designation=='Founder' %}
                                     <td>
                                         <a href="/delete_department/{{department.sno}}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
                                     </td>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
