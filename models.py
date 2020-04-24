@@ -7,7 +7,8 @@ import json
 
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/scientificatt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql' \
+                                        '://root:@localhost/scientificatt'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -55,6 +56,7 @@ class Projects(db.Model):
     date = db.Column(db.String(30), nullable=False)
     status = db.Column(db.String(30), nullable=False)
     description = db.Column(db.String(120), nullable=False)
+    report = db.Column(db.String(65000), nullable=True)
 
 
 class New(db.Model):
@@ -147,7 +149,7 @@ def employee_dashboard():
         listemp = json.loads(stremp)
 
         for email in listemp:
-            if(email == current_user.email):
+            if email == current_user.email:
                 assignedprojects.append(project)
 
     return render_template('employee_module.html', project=assignedprojects, user=current_user)
@@ -162,11 +164,13 @@ def project_dashboard(sno):
     for i in listemp:
         name = Employees.query.filter_by(email=i).first().name
         listempnames.append(name)
+    strrep = projects.report
+    listrep = json.loads(strrep)
     if current_user.designation == 'Founder':
         employees = Employees.query.filter_by().all()
     else:
         employees = Employees.query.filter_by(branch=current_user.branch).all()
-    return render_template('project.html', user=current_user, projects=projects, employees=employees, listemp=listemp, listempnames=listempnames)
+    return render_template('project.html', user=current_user, projects=projects, employees=employees, listemp=listemp, listempnames=listempnames, listrep=listrep)
 
 
 @dashboard.route('/delete_employee/<string:sno>/<string:i>')
@@ -183,8 +187,21 @@ def project_delete_employee(sno, i):
     stremp = json.dumps(listemp)
     db.session.query(Projects).filter_by(sno=sno).update(dict(employee=stremp))
     db.session.commit()
-
     return redirect('/dashboard/' + sno + '/')
+
+
+@dashboard.route('/delete_report/<string:sno>/<string:i>')
+def project_delete_report(sno, i):
+    projects = Projects.query.filter_by(sno=sno).first()
+    strrep = projects.report
+    listrep = json.loads(strrep)
+    listrep.remove(i)
+    strrep = json.dumps(listrep)
+    db.session.query(Projects).filter_by(sno=sno).update(dict(report=strrep))
+    db.session.commit()
+    return redirect('/dashboard/' + sno + '/')
+
+
 
 @dashboard.route('/add_employee/<string:sno>/', methods=['GET', 'POST'])
 def add_employee(sno):
@@ -193,16 +210,36 @@ def add_employee(sno):
         employee = Employees.query.filter_by(name=add_employee).first()
         projects = Projects.query.filter_by(sno=sno).first()
 
-        #string received
+        # string received
         stremp = projects.employee
 
-        #convert string to list and then append
+        # convert string to list and then append
         listemp = json.loads(stremp)
         listemp.append(employee.email)
 
-        #convert list back to string and store in db
+        # convert list back to string and store in db
         stremp = json.dumps(listemp)
         db.session.query(Projects).filter_by(sno=sno).update(dict(employee=stremp))
+        db.session.commit()
+    return redirect('/dashboard/' + sno + '/')
+
+
+@dashboard.route('/add_report/<string:sno>/', methods=['GET', 'POST'])
+def add_report(sno):
+    if request.method == 'POST':
+        report = request.form.get('report')
+        projects = Projects.query.filter_by(sno=sno).first()
+
+        # string received
+        strrep = projects.report
+
+        # convert string to list and then append
+        listrep = json.loads(strrep)
+        listrep.append(report)
+
+        # convert list back to string and store in db
+        strrep = json.dumps(listrep)
+        db.session.query(Projects).filter_by(sno=sno).update(dict(report=strrep))
         db.session.commit()
     return redirect('/dashboard/' + sno + '/')
 
